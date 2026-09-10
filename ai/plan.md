@@ -29,7 +29,7 @@ A ordem segue as dependências reais entre as estórias (não dá pra fazer
 Contrato antes de Orçamento, nem Ficha de Produção antes de Ficha Técnica):
 
 ### Fase 1 — Cadastros básicos (sem dependências entre si)
-- [ ] Estória 01 — Gerenciar Clientes
+- [~] Estória 01 — Gerenciar Clientes _(em andamento — tabelas de banco prontas; ver `ai/tasks.md`)_
 - [ ] Estória 05 — Gerenciar Fornecedores
 - [ ] Estória 06 — Gerenciar Equipamentos
 - [ ] Estória 10 — Gerenciar Funcionários
@@ -67,9 +67,12 @@ Contrato antes de Orçamento, nem Ficha de Produção antes de Ficha Técnica):
 
 ## Pendências técnicas em aberto (decisões do agente, não do ERS)
 
-- **ORM do backend não decidido** — EF Core (migrations, produtivo) vs Dapper
-  (SQL explícito, mais didático). Decidir na **Estória 01 — Gerenciar
-  Clientes**, ao criar o primeiro Repository. Registrar em `docs/decisions.md`.
+- ~~ORM do backend não decidido~~ → **Dapper + migrations SQL manuais**
+  (MySQL 5.5 não suporta EF Core moderno). Decidido em 2026-09-09 —
+  `docs/decisions.md`.
+- **Runner de migrations** — hoje os scripts `.sql` são aplicados na mão via
+  cliente `mysql`. Um runner que aplica os pendentes automaticamente pode
+  entrar quando incomodar.
 - **Rename do projeto `tcc` → algo como `FogoErp.Api`** — follow-up opcional,
   sem urgência.
 

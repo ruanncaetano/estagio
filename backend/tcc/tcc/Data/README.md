@@ -1,15 +1,19 @@
-# Data — conexão e contexto de persistência (MySQL)
+# Data — conexão e persistência (MySQL 5.5 + Dapper)
 
-Configuração da conexão com o MySQL e o contexto/infra que os Repositories
-usam.
+Configuração da conexão com o MySQL e a infra que os Repositories usam.
 
-> **Decisão em aberto**: ORM não escolhido. EF Core (migrations, mais
-> produtivo, mais "mágica") vs Dapper (SQL explícito, mais didático pra
-> aprender C#/SQL). A decidir na **Estória 01 — Gerenciar Clientes**.
-> Registrado como pendência em `ai/plan.md`.
+**Decisão (2026-09-09 — `docs/decisions.md`)**: acesso a dados com **Dapper**
+(SQL explícito no Repository, Dapper só materializa o resultado). Sem EF Core
+— MySQL 5.5 não é suportado pelos providers atuais.
 
-Enquanto não decidir: a string de conexão é lida via `IConfiguration`, mas
-**não vai versionada** — usar `dotnet user-secrets` ou um
-`appsettings.Local.json` (já coberto pelo `.gitignore`). O
-`appsettings.Development.json` versionado só carrega config não-sensível
-(logging etc.).
+## Schema
+`Migrations/` — scripts `.sql` numerados, forward-only, aplicados na mão via
+cliente `mysql` e controlados pela tabela `schema_migration`. Ver
+`Migrations/README.md`. Banco de dev: `fogo_erp`.
+
+## Connection string
+Lida via `IConfiguration`, **não versionada** — usar `dotnet user-secrets`
+ou `appsettings.Local.json` (coberto pelo `.gitignore`). O
+`appsettings.Development.json` versionado só carrega config não-sensível.
+
+Formato: `Server=localhost;Port=3306;Database=fogo_erp;Uid=root;Pwd=***;`

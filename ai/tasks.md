@@ -29,13 +29,15 @@ também validada contra as RNs do módulo em `docs/requisitos/`).
 
 Branch sugerida: `feat/estoria-01-clientes`.
 
-**Decisão a tomar logo no início**: ORM (EF Core vs Dapper) — registrar em
-`docs/decisions.md` e resolver a pendência em `ai/plan.md`.
+**Decisão tomada (2026-09-09)**: Dapper + migrations SQL manuais (MySQL 5.5).
+Ver `docs/decisions.md`.
 
-- [ ] Definir ORM e configurar conexão MySQL em `Data/` (string em
-      `appsettings.Development.json`, fora do git)
-- [ ] Migration/DDL das tabelas: `cliente`, `cliente_pf`, `cliente_pj`
-      (ver `docs/modelo-dados.md` — herança por tabela especializada)
+- [x] ~~Definir ORM~~ → Dapper. Banco dev `fogo_erp` criado.
+- [ ] Configurar conexão MySQL: `appsettings.Local.json` (gitignored) ou
+      `dotnet user-secrets` + leitura via `IConfiguration` em `Data/`
+- [x] Migration/DDL das tabelas: `cliente`, `cliente_pf`, `cliente_pj` +
+      `schema_migration` — `Data/Migrations/000..001` aplicados e testados
+      (FK, charset utf8, join PF/PJ)
 - [ ] `Models/Domain/`: `Cliente`, `ClientePf`, `ClientePj` (+ enum/tipo de `tipo_cliente`)
 - [ ] `Models/Dtos/`: `CriarClienteRequest`, `AtualizarClienteRequest`, `ClienteResponse`
 - [ ] `Repositories/`: `IClienteRepository` + `ClienteRepository` (sem DELETE físico — RN06)

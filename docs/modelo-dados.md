@@ -5,6 +5,12 @@
 > originais do PDF ao implementar** — esta conversão pode ter perdido
 > detalhes finos de tipo/tamanho de coluna que não estavam legíveis no
 > texto extraído.
+>
+> **Notas de implementação (Estória 01):** `cpf`/`cnpj` marcados `UK` aqui
+> **não** viram `UNIQUE` no banco — a unicidade é só entre clientes *ativos*
+> (RN05) e é validada no `ClienteService` (ver `docs/decisions.md`, entrada
+> de 2026-09-09). `CLIENTE_PJ.nome_fantasia` foi adicionado a partir do ERS
+> (`comercial.md`).
 
 ```mermaid
 erDiagram
@@ -31,8 +37,9 @@ erDiagram
     CLIENTE_PJ {
         int id_cliente PK_FK
         string cnpj UK
-        string inscricao_estadual
+        string nome_fantasia
         string nome_responsavel
+        string inscricao_estadual
     }
 
     FORNECEDOR {
