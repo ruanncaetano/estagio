@@ -134,6 +134,11 @@ silenciado — não quebra build, mas documentar é regra. `logs/` e `*.log`
 no `.gitignore`. Pacotes novos no `tcc.csproj`: Serilog.AspNetCore,
 Serilog.Sinks.File, Swashbuckle.AspNetCore.
 
+> **Atualização 2026-09-09** — o Swashbuckle foi trocado por
+> `Microsoft.AspNetCore.OpenApi` + Scalar (entrada abaixo). O resto desta
+> decisão (todo endpoint documentado, UI em `/doc`, Serilog, middleware de
+> erro) continua valendo.
+
 ## 2026-09-09 — Endereço vira entidade própria (tabela `endereco`)
 
 **Contexto**: o ERS e `docs/modelo-dados.md` traziam o endereço como colunas
@@ -202,3 +207,27 @@ de estrutura não estavam no ERS e passam a valer como padrão para as próximas
 reaproveitar `Result`, o padrão de rota, a divisão DataAnnotations×Service e a
 factory de conexão. **E01 RN01 (perfil de acesso) fica pendente** — sem
 autenticação no projeto (rastreado em `ai/plan.md`).
+
+## 2026-09-09 — Documentação: Swashbuckle → Microsoft.AspNetCore.OpenApi + Scalar
+
+**Contexto**: o Ruan decidiu usar o pacote oficial `Microsoft.AspNetCore.OpenApi`
+para a documentação da API, no lugar do Swashbuckle adotado mais cedo no dia.
+
+**Decisão**:
+- **`Microsoft.AspNetCore.OpenApi`** gera o documento OpenAPI 3.1 em
+  **`/openapi/v1.json`** (`AddOpenApi` + `MapOpenApi`). Título/descrição via
+  `AddDocumentTransformer`. No .NET 10 o source generator do pacote lê os
+  comentários `///` automaticamente (com `GenerateDocumentationFile`).
+- **`Scalar.AspNetCore`** serve a UI de teste em **`/doc`**
+  (`MapScalarApiReference("/doc", ...)`), com "try it out".
+- Removido `Swashbuckle.AspNetCore`.
+
+**Alternativas consideradas**: manter Swashbuckle (rejeitado — o Ruan quer o
+pacote oficial); OpenApi sem UI (rejeitado — o `/doc` interativo é requisito);
+OpenApi + Swagger UI só (Scalar é o par mais idiomático no .NET 9+).
+
+**Consequências**: a rota do JSON mudou de `/swagger/v1/swagger.json` para
+`/openapi/v1.json`. `backend/CLAUDE.md` e `docs/architecture.md` atualizados.
+As regras da entrada anterior (todo endpoint com `/// <summary>` +
+`[ProducesResponseType]`, UI em `/doc`) continuam valendo — só a implementação
+mudou.

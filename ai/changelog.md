@@ -112,3 +112,16 @@
   `/clientes`. Dados de teste removidos do banco.
 - Pendência deixada: **E01 RN01** (perfil de acesso) — sem auth no projeto;
   `// E01 RN01 — TODO` no Service; registrada em `ai/plan.md`.
+
+## 2026-09-09 (5)
+- Documentação da API: trocado **Swashbuckle → `Microsoft.AspNetCore.OpenApi`**
+  (10.0.12) + **`Scalar.AspNetCore`** (2.17.3) para a UI. Decisão do Ruan.
+  - `Program.cs`: `AddOpenApi` (título/descrição via `AddDocumentTransformer`)
+    + `MapOpenApi` + `MapScalarApiReference("/doc", ...)`.
+  - JSON agora em **`/openapi/v1.json`** (era `/swagger/v1/swagger.json`); UI
+    de teste segue em **`/doc`** (Scalar, com "try it out").
+  - Comentários `///` continuam alimentando a doc — no .NET 10 o source
+    generator do pacote lê o XML automaticamente.
+  - Verificado: build verde; `/openapi/v1.json` 200 com os summaries dos
+    endpoints de `/clientes` vindos do XML; `/doc` 200 (Scalar).
+- `backend/CLAUDE.md`, `docs/architecture.md`, `docs/decisions.md` atualizados.

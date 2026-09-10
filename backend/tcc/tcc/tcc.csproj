@@ -4,7 +4,8 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <!-- Gera o XML de comentarios /// para o Swagger consumir -->
+    <!-- Gera o XML de comentarios /// — o source generator do
+         Microsoft.AspNetCore.OpenApi (.NET 10) le esse XML para a documentacao -->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <!-- 1591 = "membro publico sem comentario XML": nao quebra o build,
          mas a regra e documentar todo endpoint (ver backend/CLAUDE.md) -->
@@ -13,10 +14,11 @@
 
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.1.79" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
     <PackageReference Include="MySqlConnector" Version="2.6.2" />
+    <PackageReference Include="Scalar.AspNetCore" Version="2.17.3" />
     <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
   </ItemGroup>
 
 </Project>

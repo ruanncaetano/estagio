@@ -58,19 +58,23 @@ detalhe da camada.
   (ex: Conta a Pagar tem Em aberto/Parcialmente paga/Paga/Vencida, não é só
   ativo/inativo).
 
-## Documentação da API (Swagger) — obrigatória
+## Documentação da API (OpenAPI) — obrigatória
 
-Toda a API é documentada e testável pelo Swagger. Regras:
+Toda a API é documentada e testável. Stack: **`Microsoft.AspNetCore.OpenApi`**
+gera o documento; **Scalar** serve a UI. (Decisão de 2026-09-09 — trocamos o
+Swashbuckle; ver `docs/decisions.md`.) Regras:
 
 - **Todo endpoint** tem `/// <summary>` descrevendo o que faz, e
   `[ProducesResponseType(...)]` para cada status que pode retornar (200, 201,
   400, 404, 409...). DTOs de request/response também levam `/// <summary>`
   nas propriedades não óbvias. `HealthController` é o exemplo de referência.
-- O `tcc.csproj` gera o XML de comentários (`GenerateDocumentationFile`), que
-  o `AddSwaggerGen` consome — se faltar comentário, o Swagger fica pobre, não
-  quebra o build (aviso 1591 silenciado).
-- UI de teste: **`/doc`**. JSON OpenAPI: `/swagger/v1/swagger.json`. Ligado
-  em todos os ambientes (config no `Program.cs`).
+- O `tcc.csproj` gera o XML de comentários (`GenerateDocumentationFile`); no
+  .NET 10 o source generator do `Microsoft.AspNetCore.OpenApi` lê esse XML
+  automaticamente. Faltar comentário empobrece a doc, não quebra o build
+  (aviso 1591 silenciado).
+- UI de teste: **`/doc`** (Scalar, com "try it out"). JSON OpenAPI:
+  **`/openapi/v1.json`**. Ligado em todos os ambientes (config no `Program.cs`:
+  `AddOpenApi` + `MapOpenApi` + `MapScalarApiReference("/doc", ...)`).
 
 ## Log (Serilog)
 
