@@ -6,10 +6,11 @@
 
 **Última atualização**: 2026-09-09
 
-**Estava fazendo**: Estória 01 — Gerenciar Clientes. Primeiro bloco (banco)
-concluído: tabelas `cliente` / `cliente_pf` / `cliente_pj` + `schema_migration`
-criadas no MySQL 5.5 (`fogo_erp`) via `Data/Migrations/000..001`, testadas.
-Decidido: Dapper (sem EF Core).
+**Estava fazendo**: Estória 01 — Gerenciar Clientes.
+- Bloco de banco concluído: tabelas `cliente` / `cliente_pf` / `cliente_pj` +
+  `schema_migration` no MySQL 5.5 (`fogo_erp`) via `Data/Migrations/000..001`.
+- Transversais da API montados: Swagger em `/doc`, Serilog + log de erros
+  (`Middleware/ExceptionHandlingMiddleware`). Decidido: Dapper (sem EF Core).
 
 **Próximo passo imediato**: camada C# do Cliente, nesta ordem —
 1. `appsettings.Local.json` (ou user-secrets) com a connection string +

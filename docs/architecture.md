@@ -39,8 +39,13 @@ Fluxo de request: `Controller → Service → Repository → MySQL`. Interface +
 implementação por módulo, ligadas por injeção de dependência no `Program.cs`.
 Detalhe em `backend/CLAUDE.md`.
 
-> **Decisão em aberto**: ORM do MySQL (EF Core vs Dapper) — a fechar na
-> Estória 01. Pendência registrada em `ai/plan.md`.
+Persistência: **Dapper** sobre MySQL 5.5 (EF Core moderno não suporta 5.5).
+Schema versionado em scripts SQL numerados (`Data/Migrations/`).
+
+Transversais da API (decisão de 2026-09-09):
+- **Swagger obrigatório** — todo endpoint documentado; UI de teste em `/doc`.
+- **Serilog** — console + arquivo rotativo; `ExceptionHandlingMiddleware`
+  centraliza o log de erros e responde `500` padronizado.
 
 ## O hub operacional: Evento
 

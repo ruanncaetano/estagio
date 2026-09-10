@@ -103,3 +103,33 @@ com Pomelo antigo (incompatível com .NET 10).
 - `docs/modelo-dados.md` (CLIENTE_PJ) reconciliado com o ERS: `nome_fantasia`
   adicionado (estava em `comercial.md`, faltava no modelo); `inscricao_estadual`
   mantido como opcional.
+
+## 2026-09-09 — Transversais da API: Swagger obrigatório + Serilog
+
+**Contexto**: regras de implementação pedidas pelo Ruan antes de subir os
+primeiros endpoints — a API precisa ser autodocumentada, testável por uma UI,
+e ter log de erros.
+
+**Decisão**:
+- **Swashbuckle.AspNetCore**. `GenerateDocumentationFile` ligado no
+  `tcc.csproj`; `AddSwaggerGen` consome o XML. Todo endpoint com
+  `/// <summary>` + `[ProducesResponseType]` (regra em `backend/CLAUDE.md`).
+  UI em **`/doc`** (`RoutePrefix = "doc"`), JSON em `/swagger/v1/swagger.json`.
+  Ligado em todos os ambientes.
+- **Serilog** (`Serilog.AspNetCore` + `Serilog.Sinks.File`). Console +
+  arquivo rotativo diário em `logs/` (14 dias), nível em `appsettings.json`
+  seção `Serilog`. `UseSerilogRequestLogging` para uma linha por request.
+- **`Middleware/ExceptionHandlingMiddleware`** — captura exceção não tratada,
+  `LogError` com stack trace/rota/traceId, responde `500`
+  `application/problem+json` sem vazar detalhe. Falha de RN não passa por
+  aqui: o Service devolve resultado de falha e o Controller traduz p/ 4xx.
+
+**Alternativas consideradas**: `Microsoft.AspNetCore.OpenApi` puro (novo
+padrão dos templates .NET 9+) — não traz UI; o Ruan quer o Swagger UI.
+`AddProblemDetails` + `IExceptionHandler` — equivalente; middleware explícito
+é mais didático.
+
+**Consequências**: 1591 (membro público sem doc XML) fica como aviso
+silenciado — não quebra build, mas documentar é regra. `logs/` e `*.log`
+no `.gitignore`. Pacotes novos no `tcc.csproj`: Serilog.AspNetCore,
+Serilog.Sinks.File, Swashbuckle.AspNetCore.
