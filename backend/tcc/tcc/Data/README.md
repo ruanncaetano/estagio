@@ -8,5 +8,8 @@ usam.
 > aprender C#/SQL). A decidir na **Estória 01 — Gerenciar Clientes**.
 > Registrado como pendência em `ai/plan.md`.
 
-Enquanto não decidir: string de conexão fica em `appsettings.Development.json`
-(local, fora do git) e é lida via `IConfiguration`.
+Enquanto não decidir: a string de conexão é lida via `IConfiguration`, mas
+**não vai versionada** — usar `dotnet user-secrets` ou um
+`appsettings.Local.json` (já coberto pelo `.gitignore`). O
+`appsettings.Development.json` versionado só carrega config não-sensível
+(logging etc.).
