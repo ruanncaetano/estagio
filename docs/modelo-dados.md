@@ -10,7 +10,9 @@
 > **não** viram `UNIQUE` no banco — a unicidade é só entre clientes *ativos*
 > (RN05) e é validada no `ClienteService` (ver `docs/decisions.md`, entrada
 > de 2026-09-09). `CLIENTE_PJ.nome_fantasia` foi adicionado a partir do ERS
-> (`comercial.md`).
+> (`comercial.md`). O endereço, que o ERS trazia como colunas soltas em cada
+> cadastro, virou a entidade `ENDERECO` (FK opcional `id_endereco`),
+> reaproveitada por Cliente/Fornecedor/Funcionário — decisão de 2026-09-09.
 
 ```mermaid
 erDiagram
@@ -22,13 +24,20 @@ erDiagram
         string nome
         string telefone
         string email
+        int id_endereco FK
+        boolean ativo
+    }
+    ENDERECO {
+        int id_endereco PK
         string rua
         string numero
         string bairro
         string cidade
         string cep
-        boolean ativo
     }
+    CLIENTE ||--o| ENDERECO : "tem"
+    FORNECEDOR ||--o| ENDERECO : "tem"
+    FUNCIONARIO ||--o| ENDERECO : "tem"
     CLIENTE_PF {
         int id_cliente PK_FK
         string cpf UK
@@ -48,11 +57,7 @@ erDiagram
         string cnpj_cpf UK
         string email
         string telefone
-        string rua
-        string numero
-        string bairro
-        string cidade
-        string cep
+        int id_endereco FK
         boolean ativo
     }
 
@@ -112,11 +117,7 @@ erDiagram
         string cpf UK
         string telefone
         string email
-        string rua
-        string numero
-        string bairro
-        string cidade
-        string cep
+        int id_endereco FK
         string funcao_cargo
         decimal valor_referencia
         string forma_pagamento
