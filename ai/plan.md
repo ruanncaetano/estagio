@@ -29,7 +29,8 @@ A ordem segue as dependências reais entre as estórias (não dá pra fazer
 Contrato antes de Orçamento, nem Ficha de Produção antes de Ficha Técnica):
 
 ### Fase 1 — Cadastros básicos (sem dependências entre si)
-- [~] Estória 01 — Gerenciar Clientes _(em andamento — tabelas de banco prontas; ver `ai/tasks.md`)_
+- [~] Estória 01 — Gerenciar Clientes _(backend C# completo e testado via curl;
+      falta o frontend e a RN01/auth — ver `ai/tasks.md` e pendência abaixo)_
 - [ ] Estória 05 — Gerenciar Fornecedores
 - [ ] Estória 06 — Gerenciar Equipamentos
 - [ ] Estória 10 — Gerenciar Funcionários
@@ -75,6 +76,16 @@ Contrato antes de Orçamento, nem Ficha de Produção antes de Ficha Técnica):
   entrar quando incomodar.
 - **Rename do projeto `tcc` → algo como `FogoErp.Api`** — follow-up opcional,
   sem urgência.
+
+## Pendências de RN não implementadas (rastreamento obrigatório)
+
+- **E01 RN01 (Gerenciar Clientes)** — "Apenas Administrador e
+  Vendedor/Comercial podem cadastrar clientes". **Não implementada**: o
+  projeto ainda não tem autenticação/autorização. Marcador `// E01 RN01 —
+  TODO: restringir a Administrador/Vendedor quando houver auth` no
+  `ClienteService`. Aplicar quando a camada de auth existir (provável estória
+  transversal futura); revisitar todas as RN01 das demais estórias na mesma
+  ocasião.
 
 ## Pendências abertas registradas no próprio ERS
 

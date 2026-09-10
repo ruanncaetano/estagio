@@ -16,6 +16,7 @@ Banco: `fogo_erp` (ajuste se usar outro nome).
 mysql -uroot -p -e "CREATE DATABASE IF NOT EXISTS fogo_erp CHARACTER SET utf8 COLLATE utf8_unicode_ci;"
 mysql -uroot -p fogo_erp < 000_schema_migration.sql
 mysql -uroot -p fogo_erp < 001_create_cliente.sql
+mysql -uroot -p fogo_erp < 002_create_endereco.sql
 ```
 
 Conferir o que já foi aplicado: `SELECT * FROM schema_migration ORDER BY version;`

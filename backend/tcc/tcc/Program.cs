@@ -1,6 +1,9 @@
 using System.Reflection;
 using Serilog;
+using tcc.Data;
 using tcc.Middleware;
+using tcc.Repositories;
+using tcc.Services;
 
 // Logger de bootstrap: registra falhas que acontecem já na subida da aplicação,
 // antes do container de DI existir. É substituído pelo logger definitivo abaixo.
@@ -12,6 +15,10 @@ Log.Logger = new LoggerConfiguration()
 try
 {
     var builder = WebApplication.CreateBuilder(args);
+
+    // Configuração local com segredos (connection string do MySQL). Fora do git
+    // — ver appsettings.Local.example.json. Opcional para não quebrar CI.
+    builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
 
     // --- Log (Serilog) ---
     // Console + arquivo rotativo diário em logs/. Nível vem de appsettings.json
@@ -50,10 +57,15 @@ try
     });
 
     // --- Registro de DI por módulo (Services / Repositories) ---
-    // Um bloco por módulo conforme as estórias forem implementadas, ex:
-    //   builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
-    //   builder.Services.AddScoped<IClienteService, ClienteService>();
+    // Um bloco por módulo conforme as estórias forem implementadas.
     // Ver backend/CLAUDE.md ("Estrutura de camadas").
+
+    // Infra de dados (compartilhada por todos os módulos).
+    builder.Services.AddScoped<IDbConnectionFactory, MySqlConnectionFactory>();
+
+    // Estória 01 — Clientes.
+    builder.Services.AddScoped<IClienteRepository, ClienteRepository>();
+    builder.Services.AddScoped<IClienteService, ClienteService>();
 
     var app = builder.Build();
 

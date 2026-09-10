@@ -4,25 +4,41 @@
 > histórico vai pro `ai/changelog.md`) sempre que pausar o trabalho no meio
 > de algo.
 
-**Última atualização**: 2026-09-09
+**Última atualização**: 2026-09-09 (4)
 
-**Estava fazendo**: Estória 01 — Gerenciar Clientes.
-- Bloco de banco concluído: tabelas `cliente` / `cliente_pf` / `cliente_pj` +
-  `schema_migration` no MySQL 5.5 (`fogo_erp`) via `Data/Migrations/000..001`.
-- Transversais da API montados: Swagger em `/doc`, Serilog + log de erros
-  (`Middleware/ExceptionHandlingMiddleware`). Decidido: Dapper (sem EF Core).
+**Estava fazendo**: Estória 01 — Gerenciar Clientes, camada C# (backend).
 
-**Próximo passo imediato**: camada C# do Cliente, nesta ordem —
-1. `appsettings.Local.json` (ou user-secrets) com a connection string +
-   pacote `Dapper` e `MySql.Data`/`MySqlConnector` no `tcc.csproj`.
-2. `Models/Domain/`: `Cliente`, `ClientePf`, `ClientePj`.
-3. `Models/Dtos/`: `CriarClienteRequest`, `AtualizarClienteRequest`, `ClienteResponse`.
-4. `Repositories/`: `IClienteRepository` + `ClienteRepository` (Dapper, sem DELETE).
-5. `Services/`: `IClienteService` + `ClienteService` com as RNs (RN05 = unicidade
-   entre ativos, validada aqui).
-6. `Controllers/ClientesController` + registro de DI no `Program.cs`.
+**Concluído nesta sessão**:
+- Banco: migration `002_create_endereco.sql` aplicada — endereço virou tabela
+  própria (`endereco`), `cliente.id_endereco` FK opcional (`ON DELETE SET NULL`).
+- Backend C# completo do módulo Cliente:
+  - `Models/Domain/`: `Cliente` (composição com `Pf`/`Pj`/`Endereco`),
+    `ClientePf`, `ClientePj`, `Endereco`, enum `TipoCliente` + `TipoClienteExtensions`.
+  - `Models/Dtos/`: `CriarClienteRequest`, `AtualizarClienteRequest`,
+    `ClienteResponse`, `EnderecoRequest`, `EnderecoResponse`. DataAnnotations
+    nos requests (shape); regras de RN no Service.
+  - `Common/Result.cs`: `Result` / `Result<T>` + `TipoFalha`.
+  - `Data/`: `IDbConnectionFactory` + `MySqlConnectionFactory` (lê
+    `ConnectionStrings:MySql`). `appsettings.Local.json` (gitignored) +
+    `appsettings.Local.example.json` (versionado). `Program.cs` carrega o Local.
+  - `Repositories/`: `IClienteRepository` + `ClienteRepository` (Dapper,
+    escrita multi-tabela em transação, sem DELETE de cliente).
+  - `Services/`: `IClienteService` + `ClienteService` — RN02/RN03/RN04/RN05/
+    RN06/RN07/RN08 com comentário `// E01 RNxx`. RN01 = TODO (sem auth).
+  - `Controllers/ClientesController` — GET lista (`ativo`, `busca`), GET/{id},
+    POST, PUT/{id}, PATCH/{id}/inativar, PATCH/{id}/reativar. Rota `/clientes`.
+  - DI registrado no `Program.cs`.
+- Pacotes: `Dapper` 2.1.79, `MySqlConnector` 2.6.2.
+- `dotnet build tcc.slnx` verde (0 warning / 0 erro).
+- Testado com curl contra `fogo_erp` (PF/PJ 201, RN05 409, inativar→reusar CPF
+  201, reativar colidindo 409, filtros, busca, 404, DataAnnotations 400,
+  `/doc`). Dados de teste removidos; tabelas vazias, AUTO_INCREMENT resetado.
 
-Backlog detalhado em `ai/tasks.md`.
+**Próximo passo imediato**: frontend da Estória 01 — tela de listagem (cards
+Total/Ativos/Inativos/Exibindo + busca + filtro + exportar) e modal de
+cadastro/edição com abas, alternando campos PF x PJ. Ver `ai/tasks.md`.
 
-**Bloqueios/dúvidas em aberto**: nenhum. (Atenção: `MySqlConnector` costuma
-lidar melhor com MySQL 5.5 que o `MySql.Data` atual — validar ao instalar.)
+**Pendências desta estória**:
+- **E01 RN01** (acesso só Administrador / Vendedor-Comercial) não implementada
+  — não há autenticação no projeto. `// E01 RN01 — TODO` no `ClienteService`.
+  Registrada em `ai/plan.md`.

@@ -133,3 +133,72 @@ padrão dos templates .NET 9+) — não traz UI; o Ruan quer o Swagger UI.
 silenciado — não quebra build, mas documentar é regra. `logs/` e `*.log`
 no `.gitignore`. Pacotes novos no `tcc.csproj`: Serilog.AspNetCore,
 Serilog.Sinks.File, Swashbuckle.AspNetCore.
+
+## 2026-09-09 — Endereço vira entidade própria (tabela `endereco`)
+
+**Contexto**: o ERS e `docs/modelo-dados.md` traziam o endereço como colunas
+soltas (`rua`, `numero`, `bairro`, `cidade`, `cep`) repetidas em Cliente,
+Fornecedor e Funcionário. O Ruan pediu para centralizar.
+
+**Decisão**: criar a tabela/entidade **`endereco`** (`id_endereco` PK + os 5
+campos, todos opcionais). Cada cadastro que tem endereço ganha uma FK
+**opcional** `id_endereco` (`ON DELETE SET NULL`). Relação **1:1 não
+compartilhada** — cada dono tem a sua linha de `endereco`, não se aponta duas
+pessoas para o mesmo registro. Migration `002_create_endereco.sql` (cria
+`endereco`, adiciona `cliente.id_endereco`, remove as 5 colunas de `cliente`).
+
+**Alternativas consideradas**: manter inline (rejeitado — repetição);
+`Endereco` como *value object* com colunas inline (mais leve, sem join, mas
+o Ruan quer tabela separada); tabela polimórfica com `owner_type`/`owner_id`
+(rejeitado — perde integridade referencial).
+
+**Consequências**: `Fornecedor` e `Funcionario`, quando implementados, seguem
+o mesmo padrão (`id_endereco` FK) — `docs/modelo-dados.md` já atualizado. O
+`ClienteRepository` grava/atualiza a linha de `endereco` dentro da mesma
+transação do cliente; se todos os campos vierem vazios, não cria a linha
+(`Endereco.Vazio`). No C#, `Cliente.Endereco` é um `Endereco?`.
+
+## 2026-09-09 — Estória 01 (Clientes): padrões da camada C#
+
+**Contexto**: primeira estória de cadastro implementada em C#; várias escolhas
+de estrutura não estavam no ERS e passam a valer como padrão para as próximas.
+
+**Decisões** (todas aprovadas pelo Ruan salvo onde indicado):
+- **PF/PJ por composição**, não herança: `Cliente` (raiz) com `Pf` (`ClientePf?`)
+  ou `Pj` (`ClientePj?`) e um enum `TipoCliente` mapeado para a string
+  "PF"/"PJ" (`TipoClienteExtensions`). Casa com o Dapper (uma raiz para
+  carregar/salvar) e evita hierarquia de tipos.
+- **Rota REST no plural, minúscula**: `/clientes`, `/clientes/{id}`,
+  `/clientes/{id}/inativar`, `/clientes/{id}/reativar`.
+- **Resultado de negócio explícito**: `Common/Result` / `Result<T>` + enum
+  `TipoFalha` (`Validacao`→400, `NaoEncontrado`→404, `Conflito`→409). Falha de
+  RN **não** é exceção — o Service devolve `Result`, o Controller traduz. Só o
+  inesperado sobe e cai no `ExceptionHandlingMiddleware`.
+- **DTO de request "achatado"** com discriminador `tipo` (um POST/PUT único
+  para PF e PJ), endereço como objeto aninhado (`EnderecoRequest`).
+  Mapeamento DTO↔domínio manual (sem AutoMapper por ora).
+- **Validação de entrada em duas camadas**: `DataAnnotations` nos DTOs para o
+  "shape" (obrigatório, tamanho = coluna, e-mail, regex do tipo) — com
+  `[ApiController]` isso já retorna `400 ValidationProblemDetails`. Regras que
+  dependem de lógica ou de banco ficam no Service. Controller sem `try/catch`.
+- **Tipo PF/PJ é imutável na edição** — `AtualizarClienteRequest` não tem
+  `tipo`. Trocar de tipo = criar novo cliente e inativar o antigo. (O ERS não
+  prevê troca; decisão do agente — vale revisar com o Ruan.)
+- **CPF/CNPJ aceitos com máscara e limpos no Service** (persiste só dígitos).
+  `[StringLength(14/18)]` no DTO comporta a máscara; a contagem exata de
+  dígitos (11/14) é validada no Service (E01 RN03/RN04).
+- **Dígito verificador de CPF/CNPJ NÃO é conferido** — o ERS não exige e uma
+  checagem parcial daria falsa segurança. Ponto de extensão: `ClienteService.
+  ValidarDocumento`. (Decisão do agente — confirmar com o Ruan se deve entrar.)
+- **E01 RN05 no `ClienteService`** (não no banco): helpers
+  `ExisteAtivoComCpf/CnpjAsync` checam duplicidade **entre clientes ativos**
+  ao criar, ao editar cliente ativo e ao reativar → 409.
+- **`endereco` órfão pode ser `DELETE`ado**: ao esvaziar o endereço de um
+  cliente, o `ClienteRepository` desfaz a FK e apaga a linha de `endereco`.
+  É um *value object* sem histórico próprio — não fere a regra de "não
+  excluir cadastro" (que continua valendo para `cliente`).
+
+**Consequências**: as Estórias 05 (Fornecedor) e 10 (Funcionário) devem
+reaproveitar `Result`, o padrão de rota, a divisão DataAnnotations×Service e a
+factory de conexão. **E01 RN01 (perfil de acesso) fica pendente** — sem
+autenticação no projeto (rastreado em `ai/plan.md`).
