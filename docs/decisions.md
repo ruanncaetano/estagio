@@ -72,3 +72,34 @@ escrever qualquer código de negócio.
 - A escolha do ORM (EF Core vs Dapper) fica pendente para a Estória 01 —
   registrada em `ai/plan.md`.
 - Toda entrega passa a exigir commit em branch + merge em `main` + push.
+
+## 2026-09-09 — Persistência: Dapper + migrations SQL manuais (MySQL 5.5)
+
+**Contexto**: o ambiente do Ruan tem **MySQL 5.5.62** instalado (root/
+masterkey). Os providers atuais de EF Core para MySQL (Pomelo 8.x) exigem
+5.7+; as versões do Pomelo compatíveis com 5.5 não acompanham o .NET 10.
+
+**Decisão**:
+- **Dapper** como camada de acesso a dados (SQL explícito nos Repositories,
+  Dapper só materializa o resultado). Resolve a pendência de ORM do `ai/plan.md`.
+- Schema versionado como **scripts `.sql` numerados, forward-only**, em
+  `backend/tcc/tcc/Data/Migrations/`, controlados por uma tabela
+  `schema_migration`. Aplicação manual via cliente `mysql` por enquanto
+  (`Data/Migrations/README.md`).
+- Banco de dev: `fogo_erp` (charset `utf8`, collation `utf8_unicode_ci`).
+
+**Alternativas consideradas**: EF Core + atualizar o MySQL para 8.0
+(descartado agora — não mexer no ambiente do Ruan sem necessidade); EF Core
+com Pomelo antigo (incompatível com .NET 10).
+
+**Consequências**:
+- No 5.5 não há `utf8mb4` viável para índices longos (limite de 767 bytes),
+  CHECK constraint nem coluna gerada. Invariantes que dependeriam disso vão
+  para o `ClienteService`.
+- **RN05** (nenhum par de clientes *ativos* com o mesmo CPF/CNPJ) é validada
+  no Service, **não** como `UNIQUE` — um UNIQUE simples barraria também
+  dois inativos, ou um ativo + um inativo, com o mesmo documento (o ERS
+  permite). Índices não-únicos em `cpf`/`cnpj` só aceleram a consulta.
+- `docs/modelo-dados.md` (CLIENTE_PJ) reconciliado com o ERS: `nome_fantasia`
+  adicionado (estava em `comercial.md`, faltava no modelo); `inscricao_estadual`
+  mantido como opcional.

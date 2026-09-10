@@ -31,3 +31,19 @@
   `docs/conventions.md`, `docs/decisions.md`, `ai/plan.md`, `ai/context.md`.
 - Decisões registradas em `docs/decisions.md` (entrada 2026-09-09).
 - Pendência deixada: ORM do backend (EF Core vs Dapper) — decidir na Estória 01.
+
+## 2026-09-09 (2)
+- **Estória 01 — Gerenciar Clientes**: iniciada pelo banco.
+- Decisão: **Dapper + migrations SQL manuais** (MySQL instalado é 5.5.62, sem
+  suporte a EF Core moderno). Registrado em `docs/decisions.md`.
+- Criado `backend/tcc/tcc/Data/Migrations/` com `000_schema_migration.sql` e
+  `001_create_cliente.sql` (+ README da convenção). Aplicados no banco
+  `fogo_erp` (MySQL 5.5) e testados: FK barra órfão, charset utf8 com acento,
+  join PF/PJ.
+- Tabelas: `cliente` (comum, com `tipo_cliente` e `ativo`), `cliente_pf`
+  (`cpf`, `rg`), `cliente_pj` (`cnpj`, `nome_fantasia`, `nome_responsavel`,
+  `inscricao_estadual`) — herança table-per-type (PK = FK).
+- `docs/modelo-dados.md` reconciliado com o ERS: `nome_fantasia` em CLIENTE_PJ;
+  nota de que `cpf`/`cnpj` não são `UNIQUE` no banco (RN05 é entre ativos, no Service).
+- Pendências deixadas: connection string / pacotes Dapper ainda não
+  adicionados; RN05 e demais validações vão na camada Service (próximo bloco).
