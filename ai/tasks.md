@@ -25,5 +25,32 @@ também validada contra as RNs do módulo em `docs/requisitos/`).
 
 ## Fila atual
 
-_(vazio — nenhuma estória iniciada ainda; ver `ai/plan.md` para a ordem
-sugerida e escolher a primeira ao começar a implementação)_
+### Estória 01 — Gerenciar Clientes  (`docs/requisitos/comercial.md`)
+
+Branch sugerida: `feat/estoria-01-clientes`.
+
+**Decisão a tomar logo no início**: ORM (EF Core vs Dapper) — registrar em
+`docs/decisions.md` e resolver a pendência em `ai/plan.md`.
+
+- [ ] Definir ORM e configurar conexão MySQL em `Data/` (string em
+      `appsettings.Development.json`, fora do git)
+- [ ] Migration/DDL das tabelas: `cliente`, `cliente_pf`, `cliente_pj`
+      (ver `docs/modelo-dados.md` — herança por tabela especializada)
+- [ ] `Models/Domain/`: `Cliente`, `ClientePf`, `ClientePj` (+ enum/tipo de `tipo_cliente`)
+- [ ] `Models/Dtos/`: `CriarClienteRequest`, `AtualizarClienteRequest`, `ClienteResponse`
+- [ ] `Repositories/`: `IClienteRepository` + `ClienteRepository` (sem DELETE físico — RN06)
+- [ ] `Services/`: `IClienteService` + `ClienteService` com as validações de RN:
+  - [ ] RN01 — acesso só Administrador e Vendedor/Comercial
+  - [ ] RN02 — aceitar PF e PJ
+  - [ ] RN03 / RN04 — CPF (PF) e CNPJ (PJ) opcionais; quando informados, válidos
+  - [ ] RN05 — bloquear dois clientes **ativos** com mesmo CPF/CNPJ (mensagem clara)
+  - [ ] RN06 / RN07 — inativação (`ativo`), nunca exclusão física
+  - [ ] RN08 — inativar não quebra vínculo/histórico
+- [ ] `Controllers/`: `ClientesController` — GET (lista + filtro ativo/inativo),
+      GET/{id}, POST, PUT/{id}, PATCH/{id}/inativar, PATCH/{id}/reativar
+- [ ] Registrar DI de `IClienteService`/`IClienteRepository` no `Program.cs`
+- [ ] Tela de listagem (cards Total/Ativos/Inativos/Exibindo + busca + filtro + exportar)
+- [ ] Modal de cadastro/edição com abas (Dados gerais / Endereço), alternando campos PF x PJ
+- [ ] Teste manual do fluxo completo contra as RNs de `comercial.md`
+- [ ] Fechar: `ai/plan.md` (checkbox Estória 01), `ai/context.md`, `ai/changelog.md`;
+      merge `--no-ff` em `main` + push
