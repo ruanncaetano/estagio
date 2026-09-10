@@ -1,0 +1,15 @@
+# Normaliza fim de linha: no repositório sempre LF, no working copy o do SO.
+* text=auto
+
+# Arquivos que devem manter LF sempre
+*.cs   text eol=lf
+*.csproj text eol=lf
+*.md   text eol=lf
+*.json text eol=lf
+*.sh   text eol=lf
+
+# Binários — nunca normalizar
+*.png  binary
+*.jpg  binary
+*.pdf  binary
+*.ico  binary
