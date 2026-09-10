@@ -4,6 +4,17 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Gera o XML de comentarios /// para o Swagger consumir -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <!-- 1591 = "membro publico sem comentario XML": nao quebra o build,
+         mas a regra e documentar todo endpoint (ver backend/CLAUDE.md) -->
+    <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
+  </ItemGroup>
 
 </Project>

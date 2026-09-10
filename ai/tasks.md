@@ -50,6 +50,7 @@ Ver `docs/decisions.md`.
   - [ ] RN08 — inativar não quebra vínculo/histórico
 - [ ] `Controllers/`: `ClientesController` — GET (lista + filtro ativo/inativo),
       GET/{id}, POST, PUT/{id}, PATCH/{id}/inativar, PATCH/{id}/reativar
+      (cada endpoint com `/// <summary>` + `[ProducesResponseType]` — regra Swagger)
 - [ ] Registrar DI de `IClienteService`/`IClienteRepository` no `Program.cs`
 - [ ] Tela de listagem (cards Total/Ativos/Inativos/Exibindo + busca + filtro + exportar)
 - [ ] Modal de cadastro/edição com abas (Dados gerais / Endereço), alternando campos PF x PJ

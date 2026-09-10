@@ -47,3 +47,17 @@
   nota de que `cpf`/`cnpj` não são `UNIQUE` no banco (RN05 é entre ativos, no Service).
 - Pendências deixadas: connection string / pacotes Dapper ainda não
   adicionados; RN05 e demais validações vão na camada Service (próximo bloco).
+
+## 2026-09-09 (3)
+- Transversais da API montados (regras novas do Ruan):
+  - **Swagger** (Swashbuckle) — `GenerateDocumentationFile` ligado, UI em
+    **`/doc`**, JSON em `/swagger/v1/swagger.json`. `HealthController` virou o
+    exemplo de referência (`/// <summary>` + `[ProducesResponseType]`).
+  - **Serilog** — console + arquivo rotativo em `logs/` (gitignored),
+    `UseSerilogRequestLogging`.
+  - **`Middleware/ExceptionHandlingMiddleware`** — log de erros central:
+    exceção não tratada → `LogError` + `500` `application/problem+json`.
+  - Pacotes: Serilog.AspNetCore 10, Serilog.Sinks.File 7, Swashbuckle 10.
+- Verificado rodando: `/health` 200, `/doc` 200, swagger.json com o summary
+  vindo do XML, rota de erro forçada → 500 + stack trace no arquivo de log.
+- Registrado em `docs/decisions.md` (entrada "Transversais da API").
