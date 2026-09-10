@@ -4,9 +4,11 @@
 > histórico vai pro `ai/changelog.md`) sempre que pausar o trabalho no meio
 > de algo.
 
-**Última atualização**: 2026-09-09 (4)
+**Última atualização**: 2026-09-09 (5)
 
 **Estava fazendo**: Estória 01 — Gerenciar Clientes, camada C# (backend).
+Depois: troca da doc da API para `Microsoft.AspNetCore.OpenApi` + Scalar
+(UI em `/doc`, JSON em `/openapi/v1.json`) — ver `ai/changelog.md` (5).
 
 **Concluído nesta sessão**:
 - Banco: migration `002_create_endereco.sql` aplicada — endereço virou tabela

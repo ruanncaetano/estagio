@@ -1,4 +1,4 @@
-using System.Reflection;
+using Scalar.AspNetCore;
 using Serilog;
 using tcc.Data;
 using tcc.Middleware;
@@ -34,26 +34,20 @@ try
     // --- Controllers (camada de entrada HTTP) ---
     builder.Services.AddControllers();
 
-    // --- Swagger / OpenAPI ---
-    // Documentação da API é obrigatória (ver backend/CLAUDE.md). A UI de teste
-    // fica em /doc.
-    builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen(options =>
+    // --- OpenAPI ---
+    // Documentação da API é obrigatória (ver backend/CLAUDE.md). O documento
+    // OpenAPI é gerado por Microsoft.AspNetCore.OpenApi (os comentários /// dos
+    // controllers/DTOs entram via source generator, com GenerateDocumentationFile).
+    // A UI de teste (Scalar) fica em /doc.
+    builder.Services.AddOpenApi(options =>
     {
-        options.SwaggerDoc("v1", new()
+        options.AddDocumentTransformer((document, _, _) =>
         {
-            Title = "Fogo de Chão ERP — API",
-            Version = "v1",
-            Description = "API do ERP do Fogo de Chão Buffet Experience.",
+            document.Info.Title = "Fogo de Chão ERP — API";
+            document.Info.Version = "v1";
+            document.Info.Description = "API do ERP do Fogo de Chão Buffet Experience.";
+            return Task.CompletedTask;
         });
-
-        // Puxa os comentários /// dos controllers/DTOs para a documentação.
-        var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-        var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-        if (File.Exists(xmlPath))
-        {
-            options.IncludeXmlComments(xmlPath, includeControllerXmlComments: true);
-        }
     });
 
     // --- Registro de DI por módulo (Services / Repositories) ---
@@ -75,13 +69,13 @@ try
     // Loga uma linha resumida por request (método, rota, status, duração).
     app.UseSerilogRequestLogging();
 
-    // Swagger sempre ligado — UI de teste em /doc, JSON em /swagger/v1/swagger.json.
-    app.UseSwagger();
-    app.UseSwaggerUI(options =>
+    // Documentação sempre ligada:
+    //   JSON OpenAPI  -> /openapi/v1.json
+    //   UI de teste   -> /doc  (Scalar, com "try it out")
+    app.MapOpenApi();
+    app.MapScalarApiReference("/doc", options =>
     {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Fogo de Chão ERP — API v1");
-        options.RoutePrefix = "doc";
-        options.DocumentTitle = "Fogo de Chão ERP — API";
+        options.WithTitle("Fogo de Chão ERP — API");
     });
 
     app.UseHttpsRedirection();

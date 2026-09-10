@@ -43,7 +43,9 @@ Persistência: **Dapper** sobre MySQL 5.5 (EF Core moderno não suporta 5.5).
 Schema versionado em scripts SQL numerados (`Data/Migrations/`).
 
 Transversais da API (decisão de 2026-09-09):
-- **Swagger obrigatório** — todo endpoint documentado; UI de teste em `/doc`.
+- **OpenAPI obrigatório** — `Microsoft.AspNetCore.OpenApi` gera o documento
+  (`/openapi/v1.json`), Scalar serve a UI de teste em `/doc`. Todo endpoint
+  documentado.
 - **Serilog** — console + arquivo rotativo; `ExceptionHandlingMiddleware`
   centraliza o log de erros e responde `500` padronizado.
 
